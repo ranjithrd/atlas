@@ -8,6 +8,12 @@ import { addGuess } from "../data/addGuess"
 import { addPlayerToGame } from "../data/addPlayerToGame"
 import { deleteGame } from "../data/deleteGame"
 
+function toTitleCase(str) {
+	return str.replace(/\w\S*/g, function (txt) {
+		return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase()
+	})
+}
+
 function Game({
 	history,
 	match: {
@@ -86,7 +92,11 @@ function Game({
 			}
 		})
 		if (!isError) {
-			addGuess({ guess: guess, player: playerName, gameCode: code })
+			addGuess({
+				guess: toTitleCase(guess),
+				player: playerName,
+				gameCode: code,
+			})
 			setNewGuess("")
 		}
 	}
