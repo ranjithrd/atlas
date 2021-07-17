@@ -1,19 +1,9 @@
 import firebase from "firebase"
+import { countries } from "./countries"
 
-const RANDOM_COUNTRIES = [
-	"Afghanistan",
-	"Australia",
-	"Antigua and Barbuda",
-	"Japan",
-]
-
-// async function getData(ref) {
-// 	return (await ref.get()).val()
-// }
+const RANDOM_COUNTRIES = countries
 
 export const newGame = async (playerName) => {
-	console.log(playerName)
-
 	const database = firebase.database().ref()
 	const collection = database.child("games")
 

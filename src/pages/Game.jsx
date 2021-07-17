@@ -40,7 +40,6 @@ function Game({
 				}
 			}
 		})
-		console.log(intNextPlayer)
 		setNextPlayer(intNextPlayer)
 	}
 
@@ -93,7 +92,6 @@ function Game({
 	}
 
 	function onDeleteGame() {
-		console.log("Request to delete game")
 		deleteGame(code)
 		history.push("/")
 	}
@@ -107,9 +105,6 @@ function Game({
 	useEffect(() => onDataChanged(data), [data])
 
 	useEffect(() => {
-		console.log(nextPlayer)
-		console.log(playerName)
-		console.log(nextPlayer === playerName ? "Your" : `${nextPlayer}'s`)
 		setDisplayNext(nextPlayer === playerName ? "Your" : `${nextPlayer}'s`)
 	}, [nextPlayer, playerName])
 
@@ -138,7 +133,6 @@ function Game({
 				)
 			} else {
 				const gameVal = (await game.get()).val()
-				console.log(gameVal)
 				let playerExists = false
 				gameVal.order.forEach((player) => {
 					if (player === internalPlayerName) {
@@ -203,7 +197,7 @@ function Game({
 						</strong>
 					</div>
 					<label htmlFor="name">Please enter your guess</label>
-					<div className="flex flex-row gap-3">
+					<div className="flex flex-col gap-3 md:flex-row">
 						<input
 							type="text"
 							className="mt-4 p-3 rounded-lg flex-grow shadow-lg focus:ring-2 focus:ring-yellow-800 text-lg"
@@ -216,7 +210,7 @@ function Game({
 						<Button
 							title="Submit"
 							onClick={() => submitGuess(newGuess)}
-							className="w-1/4"
+							className="w-full md:w-1/4"
 						/>
 					</div>
 					{guessError === "" ? (

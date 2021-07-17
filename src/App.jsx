@@ -1,6 +1,7 @@
 import React, { useEffect } from "react"
 import { BrowserRouter as Router, Route, Switch } from "react-router-dom"
 import "./assets/tailwind.css"
+import "./assets/main.css"
 import { initialise } from "./helpers/config"
 import Home from "./pages/Home"
 import Game from "./pages/Game"

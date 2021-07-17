@@ -4,7 +4,7 @@ module.exports = {
 	theme: {
 		extend: {},
 		fontFamily: {
-			sans: ['General Sans','ui-sans-serif', 'system-ui'],
+			sans: ['Zilla Slab','ui-sans-serif', 'system-ui'],
 			mono: ['monospace']
 		},
 	},
