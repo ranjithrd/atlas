@@ -225,6 +225,7 @@ function Game({
 				<div className="text-sm">Not your turn yet!</div>
 			)}
 			<div className="mt-4 h-full overflow-y-scroll">
+				<div className="mb-2">{guesses.length} guesses</div>
 				{guesses
 					.map((guess) => (
 						<div
