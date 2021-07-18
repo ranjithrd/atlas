@@ -135,7 +135,7 @@ function Game({
 		}
 	}
 
-	useEffect(() => onDataChanged(data), [data])
+	useEffect(() => onDataChanged(data), [data, onDataChanged])
 
 	useEffect(() => {
 		setDisplayNext(nextPlayer === playerName ? "Your" : `${nextPlayer}'s`)
