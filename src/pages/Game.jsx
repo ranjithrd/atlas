@@ -7,7 +7,8 @@ import { initialise } from "../helpers/config"
 import { addGuess } from "../data/addGuess"
 import { addPlayerToGame } from "../data/addPlayerToGame"
 import { deleteGame } from "../data/deleteGame"
-import { validateGuess } from '../helpers/validateGuess';
+import { validateGuess } from "../helpers/validateGuess"
+import { removePlayer } from "../data/removePlayer"
 
 function toTitleCase(str) {
 	return str.replace(/\w\S*/g, function (txt) {
@@ -23,6 +24,7 @@ function Game({
 }) {
 	const [startError, setStartError] = useState("")
 	const [guesses, setGuesses] = useState([])
+	const [players, setPlayers] = useState([])
 	const [hasInitialised, setHasInitialised] = useState(false)
 	const [playerName, setPlayerName] = useState("No Name Entered")
 	const [nextPlayer, setNextPlayer] = useState("")
@@ -35,6 +37,7 @@ function Game({
 	function onDataChanged(data) {
 		if (!data) return
 		setGuesses(data.guesses)
+		setPlayers(data.order)
 		const lastPlayed = data.lastPlayed
 		const players = data.order
 		let intNextPlayer
@@ -45,6 +48,9 @@ function Game({
 				} else {
 					intNextPlayer = players[0]
 				}
+			}
+			if (!intNextPlayer) {
+				intNextPlayer = playerName
 			}
 		})
 		setNextPlayer(intNextPlayer)
@@ -107,6 +113,15 @@ function Game({
 			})
 			setNewGuess("")
 		}
+	}
+
+	function onRemovePlayer(player) {
+		removePlayer(player, code)
+	}
+
+	function onExitGame() {
+		removePlayer(playerName, code)
+		history.push("/")
 	}
 
 	function onDeleteGame() {
@@ -187,7 +202,7 @@ function Game({
 		)
 
 	return (
-		<div className="w-full h-screen flex flex-col items-stretch">
+		<div className="w-full flex flex-col items-stretch">
 			<Link to="/">
 				<h2 className="font-bold text-base mb-6 w-full text-left">
 					Go back
@@ -199,13 +214,15 @@ function Game({
 			<div className="mt-4 text-xl">
 				Code: <strong className="font-mono">{code}</strong>
 			</div>
-			<Button
-				title="Stop Game"
-				onClick={onDeleteGame}
-				className="mt-4 mb-4"
-				outlined
-				wide
-			/>
+			<div className="flex flex-row my-4 gap-4">
+				<Button
+					title="Stop Game"
+					onClick={onDeleteGame}
+					outlined
+					wide
+				/>
+				<Button title="Leave Game" onClick={onExitGame} outlined wide />
+			</div>
 			{nextPlayer === playerName ? (
 				<div className="mt-2">
 					<div className="mb-4 text-lg">
@@ -242,7 +259,7 @@ function Game({
 			) : (
 				<div className="text-sm">Not your turn yet!</div>
 			)}
-			<div className="mt-4 h-full overflow-y-scroll">
+			<div className="mt-4 overflow-y-scroll" style={{ height: "60vh" }}>
 				<div className="mb-2">{guesses.length} guesses</div>
 				{guesses
 					.map((guess) => (
@@ -255,6 +272,20 @@ function Game({
 						</div>
 					))
 					.reverse()}
+			</div>
+			<div className="my-8">
+				<h3 className="font-bold text-lg">Players</h3>
+				{players.map((player) => (
+					<div className="w-full flex flex-row justify-between py-2 border-b-2 border-gray-200" key={player}>
+						{player}
+						<button
+							onClick={() => onRemovePlayer(player)}
+							className="text-red-500 text-sm"
+						>
+							Remove
+						</button>
+					</div>
+				))}
 			</div>
 		</div>
 	)
