@@ -37,13 +37,48 @@ function Game({
 
 	const [alert, setAlert] = useState(null)
 
-	// eslint-disable-next-line react-hooks/exhaustive-deps
-	function onDataChanged(data) {
-		if (!data) return
-		setGuesses(data.guesses)
-		setPlayers(data.order)
-		const lastPlayed = data.lastPlayed
-		const players = data.order
+	const [hasGrantedPermission, setHasGrantedPermission] = useState(false)
+
+	function notify(title, message) {
+		if (Notification.permission === "denied") return
+		if (Notification.permission === "granted") {
+			const notif = new Notification(title, {
+				body: message,
+			})
+			document.addEventListener("visibilitychange", function () {
+				if (document.visibilityState === "visible") {
+					notif.close()
+				}
+			})
+		} else {
+			if (!hasGrantedPermission) {
+				Notification.requestPermission().then(function (result) {
+					if (result === "granted") {
+						setHasGrantedPermission(true)
+						notify(title, message)
+					} else {
+						setHasGrantedPermission(true)
+					}
+				})
+			}
+		}
+	}
+
+	function onDataChanged(d) {
+		if (!d) return
+		const oldGuesses = [...guesses]
+		const newGuesses = [...d.guesses]
+		const isInFocus = !document.hidden
+		if (!isInFocus && JSON.stringify(newGuesses) !== JSON.stringify(oldGuesses)) {
+			console.log(oldGuesses)
+			console.log(newGuesses)
+			console.log('DIFFERENT DATA')
+			notify(`${newGuesses[newGuesses.length - 1].name} has guessed ${newGuesses[newGuesses.length - 1].guess}.`, `${newGuesses[newGuesses.length - 1].name} has guessed ${newGuesses[newGuesses.length - 1].guess}.`)
+		}
+		setGuesses(newGuesses)
+		setPlayers(d.order)
+		const lastPlayed = d.lastPlayed
+		const players = d.order
 		let intNextPlayer
 		players.forEach((player, index) => {
 			if (player === lastPlayed) {
@@ -144,7 +179,12 @@ function Game({
 				message: (
 					<div className="bg-gray-100 p-3 flex flex-row justify-between">
 						{url}
-						<button className="text-sm text-yellow-800 focus:text-red-500" onClick={copyLink} >Copy</button>
+						<button
+							className="text-sm text-yellow-800 focus:text-red-500"
+							onClick={copyLink}
+						>
+							Copy
+						</button>
 					</div>
 				),
 				button: "Close",
@@ -173,7 +213,8 @@ function Game({
 		}
 	}
 
-	useEffect(() => onDataChanged(data), [data, onDataChanged])
+	// eslint-disable-next-line react-hooks/exhaustive-deps
+	useEffect(() => onDataChanged(data), [data])
 
 	useEffect(() => {
 		setDisplayNext(nextPlayer === playerName ? "Your" : `${nextPlayer}'s`)
