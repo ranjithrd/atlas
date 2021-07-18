@@ -10,6 +10,7 @@
 		"chart.js": "^3.3.2",
 		"craco": "^0.0.3",
 		"firebase": "^8.7.1",
+		"neat-csv": "^6.0.1",
 		"react": "^17.0.2",
 		"react-chartjs-2": "^3.0.3",
 		"react-dom": "^17.0.2",

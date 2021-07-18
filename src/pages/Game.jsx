@@ -7,6 +7,7 @@ import { initialise } from "../helpers/config"
 import { addGuess } from "../data/addGuess"
 import { addPlayerToGame } from "../data/addPlayerToGame"
 import { deleteGame } from "../data/deleteGame"
+import { validateGuess } from '../helpers/validateGuess';
 
 function toTitleCase(str) {
 	return str.replace(/\w\S*/g, function (txt) {
@@ -71,8 +72,8 @@ function Game({
 			return
 		}
 		if (
-			guess.slice(0, 1).toLowerCase() !==
-			guesses.slice(-1)[0].guess.slice(-1).toLowerCase()
+			guess.slice(0, 1).toLowerCase().trim() !==
+			guesses.slice(-1)[0].guess.slice(-1).toLowerCase().trim()
 		) {
 			setGuessError("Make sure your guess starts with the right letter!")
 			setNewGuess("")
@@ -91,9 +92,16 @@ function Game({
 				return
 			}
 		})
+		const isGuessValid = validateGuess(guess.trim())
+		if (!isGuessValid) {
+			setGuessError("Please enter a name of a place that exists.")
+			setNewGuess("")
+			isError = true
+			return
+		}
 		if (!isError) {
 			addGuess({
-				guess: toTitleCase(guess),
+				guess: toTitleCase(guess.trim()),
 				player: playerName,
 				gameCode: code,
 			})
@@ -210,7 +218,7 @@ function Game({
 					<div className="flex flex-col gap-3 md:flex-row">
 						<input
 							type="text"
-							className="mt-4 p-3 rounded-lg flex-grow shadow-lg focus:ring-2 focus:ring-yellow-800 text-lg"
+							className="mt-4 p-3 rounded-lg flex-grow shadow-lg focus:ring-2 focus:rounded-lg focus:ring-yellow-800 text-lg"
 							onChange={(e) => setNewGuess(e.target.value)}
 							value={newGuess}
 							id="name"
