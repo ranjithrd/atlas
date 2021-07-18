@@ -34,6 +34,7 @@ function Game({
 	const [newGuess, setNewGuess] = useState("")
 	const [guessError, setGuessError] = useState("")
 
+	// eslint-disable-next-line react-hooks/exhaustive-deps
 	function onDataChanged(data) {
 		if (!data) return
 		setGuesses(data.guesses)
