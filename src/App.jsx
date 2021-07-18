@@ -5,6 +5,7 @@ import "./assets/main.css"
 import { initialise } from "./helpers/config"
 import Home from "./pages/Home"
 import Game from "./pages/Game"
+import Join from './pages/Join';
 
 function App() {
 	useEffect(() => {
@@ -17,6 +18,7 @@ function App() {
 				<Router>
 					<Switch>
 						<Route path="/" exact component={Home} />
+						<Route path="/join/:code" component={Join} />
 						<Route path="/:code" component={Game} />
 					</Switch>
 				</Router>

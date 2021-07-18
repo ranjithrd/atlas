@@ -9,6 +9,7 @@ import { addPlayerToGame } from "../data/addPlayerToGame"
 import { deleteGame } from "../data/deleteGame"
 import { validateGuess } from "../helpers/validateGuess"
 import { removePlayer } from "../data/removePlayer"
+import Alert from "../components/Alert"
 
 function toTitleCase(str) {
 	return str.replace(/\w\S*/g, function (txt) {
@@ -33,6 +34,8 @@ function Game({
 
 	const [newGuess, setNewGuess] = useState("")
 	const [guessError, setGuessError] = useState("")
+
+	const [alert, setAlert] = useState(null)
 
 	// eslint-disable-next-line react-hooks/exhaustive-deps
 	function onDataChanged(data) {
@@ -113,6 +116,40 @@ function Game({
 				gameCode: code,
 			})
 			setNewGuess("")
+		}
+	}
+
+	function share() {
+		const url = `${window.location.hostname}/join/${code}`
+		if (navigator.share) {
+			navigator
+				.share({
+					title: "Join my game of Atlas!",
+					message: `Join my game of Atlas, the popular online game with the code ${code}`,
+					url: url,
+				})
+				.then(
+					setAlert({
+						title: "Thank you for sharing!",
+						button: "Close",
+						onButton: () => setAlert(null),
+					})
+				)
+		} else {
+			function copyLink() {
+				navigator.clipboard.writeText(url)
+			}
+			setAlert({
+				title: "Please share this link!",
+				message: (
+					<div className="bg-gray-100 p-3 flex flex-row justify-between">
+						{url}
+						<button className="text-sm text-yellow-800 focus:text-red-500" onClick={copyLink} >Copy</button>
+					</div>
+				),
+				button: "Close",
+				onButton: () => setAlert(null),
+			})
 		}
 	}
 
@@ -203,92 +240,126 @@ function Game({
 		)
 
 	return (
-		<div className="w-full flex flex-col items-stretch">
-			<Link to="/">
-				<h2 className="font-bold text-base mb-6 w-full text-left">
-					Go back
-				</h2>
-			</Link>
-			<div className="text-2xl">
-				<span className="font-bold">{displayNext}</span> turn
-			</div>
-			<div className="mt-4 text-xl">
-				Code: <strong className="font-mono">{code}</strong>
-			</div>
-			<div className="flex flex-row my-4 gap-4">
-				<Button
-					title="Stop Game"
-					onClick={onDeleteGame}
-					outlined
-					wide
-				/>
-				<Button title="Leave Game" onClick={onExitGame} outlined wide />
-			</div>
-			{nextPlayer === playerName ? (
-				<div className="mt-2">
-					<div className="mb-4 text-lg">
-						Your guess must start with the letter{" "}
-						<strong>
-							{guesses.slice(-1)[0].guess.slice(-1).toUpperCase()}
-						</strong>
-					</div>
-					<label htmlFor="name">Please enter your guess</label>
-					<div className="flex flex-col gap-3 md:flex-row">
-						<input
-							type="text"
-							className="mt-4 p-3 rounded-lg flex-grow shadow-lg focus:ring-2 focus:rounded-lg focus:ring-yellow-800 text-lg"
-							onChange={(e) => setNewGuess(e.target.value)}
-							value={newGuess}
-							id="name"
-							placeholder="Enter your guess"
-							onKeyDown={onKeyDown}
-						/>
-						<Button
-							title="Submit"
-							onClick={() => submitGuess(newGuess)}
-							className="w-full md:w-1/4"
-						/>
-					</div>
-					{guessError === "" ? (
-						""
-					) : (
-						<div className="mt-2 text-red-500 text-sm font-medium">
-							{guessError}
-						</div>
-					)}
+		<>
+			{alert ? (
+				// <div className="fixed h-screen w-screen bg-opacity-60 bg-gray-800 flex flex-col justify-center">
+				<div className="flex justify-center align-center">
+					<Alert {...alert} className=" " />
 				</div>
 			) : (
-				<div className="text-sm">Not your turn yet!</div>
+				// </div>
+				""
 			)}
-			<div className="mt-4 overflow-y-scroll" style={{ height: "60vh" }}>
-				<div className="mb-2">{guesses.length} guesses</div>
-				{guesses
-					.map((guess) => (
-						<div
-							className="bg-white rounded-lg shadow-lg my-4 p-4 w-full flex flex-row"
-							key={JSON.stringify(guess)}
-						>
-							<div className="font-bold">{guess.name}</div>
-							<div className="ml-2">{guess.guess}</div>
-						</div>
-					))
-					.reverse()}
-			</div>
-			<div className="my-8">
-				<h3 className="font-bold text-lg">Players</h3>
-				{players.map((player) => (
-					<div className="w-full flex flex-row justify-between py-2 border-b-2 border-gray-200" key={player}>
-						{player}
-						<button
-							onClick={() => onRemovePlayer(player)}
-							className="text-red-500 text-sm"
-						>
-							Remove
-						</button>
+			<div
+				className={
+					alert
+						? "w-full flex flex-col items-stretch blur-lg filter brightness-50 opacity-10 h-max-screen overflow-hidden"
+						: "w-full flex flex-col items-stretch"
+				}
+			>
+				<Link to="/">
+					<h2 className="font-bold text-base mb-6 w-full text-left">
+						Go back
+					</h2>
+				</Link>
+				<div className="flex flex-row w-full">
+					<div className="mt-4 text-xl">
+						Code: <strong className="font-mono">{code}</strong>
 					</div>
-				))}
+					<Button title="Share" onClick={share} />
+				</div>
+				<div className="flex flex-row my-4 gap-4">
+					<Button
+						title="Stop Game"
+						onClick={onDeleteGame}
+						outlined
+						wide
+					/>
+					<Button
+						title="Leave Game"
+						onClick={onExitGame}
+						outlined
+						wide
+					/>
+				</div>
+				<div className="text-2xl">
+					<span className="font-bold">{displayNext}</span> turn
+				</div>
+				{nextPlayer === playerName ? (
+					<div className="mt-2">
+						<div className="mb-4 text-lg">
+							Your guess must start with the letter{" "}
+							<strong>
+								{guesses
+									.slice(-1)[0]
+									.guess.slice(-1)
+									.toUpperCase()}
+							</strong>
+						</div>
+						<label htmlFor="name">Please enter your guess</label>
+						<div className="flex flex-col gap-3 md:flex-row">
+							<input
+								type="text"
+								className="mt-4 p-3 rounded-lg flex-grow shadow-lg focus:ring-2 focus:rounded-lg focus:ring-yellow-800 text-lg"
+								onChange={(e) => setNewGuess(e.target.value)}
+								value={newGuess}
+								id="name"
+								placeholder="Enter your guess"
+								onKeyDown={onKeyDown}
+							/>
+							<Button
+								title="Submit"
+								onClick={() => submitGuess(newGuess)}
+								className="w-full md:w-1/4"
+							/>
+						</div>
+						{guessError === "" ? (
+							""
+						) : (
+							<div className="mt-2 text-red-500 text-sm font-medium">
+								{guessError}
+							</div>
+						)}
+					</div>
+				) : (
+					<div className="text-sm">Not your turn yet!</div>
+				)}
+				<div
+					className="mt-4 overflow-y-scroll"
+					style={{ height: "60vh" }}
+				>
+					<div className="mb-2">{guesses.length} guesses</div>
+					{guesses
+						.map((guess) => (
+							<div
+								className="bg-white rounded-lg shadow-lg my-4 p-4 w-full flex flex-row"
+								key={JSON.stringify(guess)}
+							>
+								<div className="font-bold">{guess.name}</div>
+								<div className="ml-2">{guess.guess}</div>
+							</div>
+						))
+						.reverse()}
+				</div>
+				<div className="my-8">
+					<h3 className="font-bold text-lg">Players</h3>
+					{players.map((player) => (
+						<div
+							className="w-full flex flex-row justify-between py-2 border-b-2 border-gray-200"
+							key={player}
+						>
+							{player}
+							<button
+								onClick={() => onRemovePlayer(player)}
+								className="text-red-500 text-sm"
+							>
+								Remove
+							</button>
+						</div>
+					))}
+				</div>
 			</div>
-		</div>
+		</>
 	)
 }
 
