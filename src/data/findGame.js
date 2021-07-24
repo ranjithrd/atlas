@@ -1,6 +1,18 @@
 import firebase from "firebase"
 
 export const findGameWithCode = async (code, reactive) => {
+	let isOffline = true
+	while (isOffline) {
+		console.log("You're not online.")
+		try {
+			const d = await firebase.database().ref().child(`games`).get()
+			console.log(d)
+			isOffline = false
+		} catch (error) {
+			isOffline = true
+			console.log(error)
+		}
+	}
 	try {
 		const rx = reactive ?? false
 		const database = firebase.database().ref()
